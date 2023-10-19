@@ -39,6 +39,11 @@ void setup() {
    digitalWrite(motorReset, HIGH);
    digitalWrite(M1, HIGH); // Set DRV8825 to four microsteps per step
    analogReference(INTERNAL); // Sets Reference Voltage to 2.56 V (use on Arduino micro only!!
+   // ADC compares to analogReference voltage: ZX47-60-S+ Power Detector slope -25 mV/dB, Arduino Resolution: 2.5 mV ADC value, 5mV per 2xADC value
+   // -> If analogRead(analogPin)/2 changes by 5, the detected power changes by 1dB 
+   // -60dB = 2.1V=840ADC = 420 value
+   // -30dB = 1.4V=560ADC = 280 value
+   // 0dB = 0.65V = 132ADC = 64 value
 
    // Manual position reset
    if(digitalRead(resetPositionIn ) == HIGH) {
@@ -121,7 +126,7 @@ bool find_minimum() {
         optimum = parallel.currentPosition();
         opt_val = val;
         }
-      if(val < int(opt_val - 12)) {keep_going = false;}
+      if(val < int(opt_val - 12)) {keep_going = false;} // stop if reflected power larger than "12"~5 dB more than optimal reflection
       }
     } while (parallel.distanceToGo() != 0 && keep_going == true);
 
